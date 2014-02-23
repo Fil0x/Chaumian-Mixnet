@@ -1,6 +1,8 @@
 import socket
 import threading
 import SocketServer
+from util import ConfigReader
+
 from simpleflake import simpleflake
 
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
@@ -17,8 +19,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 if __name__ == "__main__":  
     try:
-        # Port 0 means to select an arbitrary unused port
-        HOST, PORT = "127.0.0.1", 20002
+        HOST, PORT = ConfigReader.host_info('mix')
 
         server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
         ip, port = server.server_address
