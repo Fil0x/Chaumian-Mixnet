@@ -5,7 +5,9 @@ if ".." not in sys.path:
 import socket
 import threading
 import SocketServer
+
 from util import ConfigReader
+from util.BaseClasses import ThreadedTCPServer
 
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 
@@ -15,9 +17,6 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         response = "{}: {}".format(cur_thread.name, data)
         self.request.sendall(response)
         print 'Voted {}'.format(response)
-
-class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
-    pass
 
 class VoteServer(object):
     def __init__(self, name='Vote'):
@@ -36,5 +35,5 @@ class VoteServer(object):
         self.server_thread.start()
         print "Server loop running in thread:", self.server_thread.name
         
-    def stop(self):
+    def shutdown(self):
         self.server.shutdown()

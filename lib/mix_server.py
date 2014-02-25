@@ -5,7 +5,9 @@ if ".." not in sys.path:
 import socket
 import threading
 import SocketServer
+
 from util import ConfigReader
+from util.BaseClasses import ThreadedTCPServer
 
 from simpleflake import simpleflake
 
@@ -17,9 +19,6 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         response = str(simpleflake())
         self.request.sendall(response)
         print 'Voted {}'.format(data)
-
-class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
-    pass
 
 class MixServer(object):
     def __init__(self, name, isFirst=False, isLast=False):
@@ -40,5 +39,5 @@ class MixServer(object):
         self.server_thread.start()
         print "Server loop running in thread:", self.server_thread.name
         
-    def stop(self):
+    def shutdown(self):
         self.server.shutdown()
