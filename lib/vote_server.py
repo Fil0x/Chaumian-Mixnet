@@ -1,3 +1,7 @@
+import sys
+if ".." not in sys.path:
+    sys.path.append("..")
+
 import socket
 import threading
 import SocketServer
@@ -15,22 +19,22 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
-if __name__ == "__main__":  
-    try:
-        # Port 0 means to select an arbitrary unused port
-        HOST, PORT = ConfigReader.host_info('vote')
+class VoteServer(object):
+    def __init__(self, name='Vote'):
+        self.name = name
 
-        server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
-        ip, port = server.server_address
+        HOST, PORT = ConfigReader.host_info(self.name)
+
+        self.server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
+        ip, port = self.server.server_address
 
         # Start a thread with the server -- that thread will then start one
         # more thread for each request
-        server_thread = threading.Thread(target=server.serve_forever)
+        self.server_thread = threading.Thread(target=self.server.serve_forever)
         # Exit the server thread when the main thread terminates
-        server_thread.daemon = True
-        server_thread.start()
-        print "Server loop running in thread:", server_thread.name
-        while 1:
-            continue
-    except KeyboardInterrupt:
-        server.shutdown()
+        self.server_thread.daemon = True
+        self.server_thread.start()
+        print "Server loop running in thread:", self.server_thread.name
+        
+    def stop(self):
+        self.server.shutdown()
