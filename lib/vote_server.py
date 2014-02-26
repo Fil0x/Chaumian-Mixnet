@@ -6,7 +6,7 @@ import socket
 import threading
 import SocketServer
 
-from util import ConfigReader
+from util import Settings
 from util.BaseClasses import ThreadedTCPServer
 
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
@@ -22,7 +22,7 @@ class VoteServer(object):
     def __init__(self, name='Vote'):
         self.name = name
 
-        HOST, PORT = ConfigReader.host_info(self.name)
+        HOST, PORT = Settings.host_info(self.name)
 
         self.server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
         ip, port = self.server.server_address
