@@ -3,7 +3,7 @@ import socket
 from util import Settings
 
 from Crypto.PublicKey import RSA
-from Crypto import Random
+from Crypto.Cipher import PKCS1_OAEP
 
 def client(ip, port, message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -47,20 +47,28 @@ if __name__ == "__main__":
     RSAkeys.reverse()
 
     #Encrypt each vote with the keys in reverse order
+    #The encryption chain is illustrated below:
+    #RSA->RSA->PKCS1_OAEP(rsa)
+    #PKCS1_OAEP is used to add randomness in the vote
     print 'Votes:{}'.format(','.join(votes))
     encrypted_votes = []
-    rng = Random.new().read
+
     for i, v in enumerate(votes):
         print 'Encrypting vote #{}'.format(i+1)
-        result = (v,)
-        for key in RSAkeys:
-            result = key.encrypt(result[0], rng)
+        cipher = PKCS1_OAEP.new(RSAkeys[0])
+        result = (cipher.encrypt(v),)
+        for key in RSAkeys[1:]:
+            #The random(last) parameter is unused
+            result = key.encrypt(result[0], 0)
         encrypted_votes.append(result[0])
 
+    #Votes are encrypted, send them to the bulletin board
+    #in order to notify the first mixnet
+    HOST, PORT = Settings.host_info('BulletinBoard')
+    #Notify the bulletin board how many votes it should expect
+    client(HOST, PORT, 'vote-count-{}'.format(len(votes)))
+    #Send the encrypted votes to the bulletin board
+    print 'Sending votes to the bulletin board...'
+    for v in encrypted_votes:
+        client(HOST, PORT, v)
     print 'Client done sending!'
-
-
-
-
-
-
