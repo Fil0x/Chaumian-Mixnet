@@ -1,5 +1,6 @@
 import socket
 
+from util import logger as log
 from util import Settings
 
 from Crypto.PublicKey import RSA
@@ -27,6 +28,8 @@ def parse_keys(keycollection):
     return parsed_keys
 
 if __name__ == "__main__":
+    logger = log.logger_factory('VL')
+    
     #Generate the random votes
     votes = Settings.generate_rand_votes(count=10)
     #Retrieve the public keys of each mix server
@@ -42,7 +45,7 @@ if __name__ == "__main__":
     #We have the public keys, now we can construct the appropriate RSA keys
     RSAkeys = []
     for key in public_keys:
-        print 'Client: Constructing key from {}'.format(key[0])
+        logger.debug('Client: Constructing key from {}'.format(key[0]))
         RSAkeys.append(RSA.construct(key[1]))
     RSAkeys.reverse()
 
@@ -50,11 +53,11 @@ if __name__ == "__main__":
     #The encryption chain is illustrated below:
     #RSA->RSA->PKCS1_OAEP(rsa)
     #PKCS1_OAEP is used to add randomness in the vote
-    print 'Votes:{}'.format(','.join(votes))
+    logger.debug('Votes:{}'.format(','.join(votes)))
     encrypted_votes = []
 
     for i, v in enumerate(votes):
-        print 'Encrypting vote #{}'.format(i+1)
+        logger.debug('Encrypting vote #{}'.format(i+1))
         cipher = PKCS1_OAEP.new(RSAkeys[0])
         result = (cipher.encrypt(v),)
         for key in RSAkeys[1:]:
@@ -68,7 +71,7 @@ if __name__ == "__main__":
     #Notify the bulletin board how many votes it should expect
     client(HOST, PORT, 'vote-count-{}'.format(len(votes)))
     #Send the encrypted votes to the bulletin board
-    print 'Sending votes to the bulletin board...'
+    logger.debug('Sending votes to the bulletin board...')
     for v in encrypted_votes:
         client(HOST, PORT, v)
-    print 'Client done sending!'
+    logger.debug('Client done sending!')
