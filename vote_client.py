@@ -1,3 +1,4 @@
+import time
 import socket
 
 from util import logger as log
@@ -55,7 +56,6 @@ if __name__ == "__main__":
     #PKCS1_OAEP is used to add randomness in the vote
     logger.debug('Votes:{}'.format(','.join(votes)))
     encrypted_votes = []
-
     for i, v in enumerate(votes):
         logger.debug('Encrypting vote #{}'.format(i+1))
         cipher = PKCS1_OAEP.new(RSAkeys[0])

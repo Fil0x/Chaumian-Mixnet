@@ -2,6 +2,7 @@ import sys
 if ".." not in sys.path:
     sys.path.append("..")
 
+import time
 import socket
 import random
 import threading
@@ -60,6 +61,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     self.logger.debug('Sending back....')
                     HOST, PORT = Settings.host_info('BulletinBoard')
                     for v in decrypted_votes:
+                        time.sleep(0.5)
+                        self.logger.debug('Sending next...')
                         self.send_vote(HOST, PORT, v)
                     #self.request.sendall(response)
                 else:
@@ -75,8 +78,9 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     self.logger.debug('Sending back....')
                     HOST, PORT = Settings.host_info('BulletinBoard')
                     for v in decrypted_votes:
+                        time.sleep(0.5)
+                        self.logger.debug('Sending next...')
                         self.send_vote(HOST, PORT, v)
-                    #self.request.sendall(response)
                 self.server.received_votes = 0
                 self.server.actual_votes = []
 
@@ -108,7 +112,7 @@ class MixServer(object):
         # Exit the server thread when the main thread terminates
         self.server_thread.daemon = True
         self.server_thread.start()
-        log.debug("Server loop running in thread({}) & name({})".format(self.server_thread.name, name))
+        log.debug('Server loop running in thread({})'.format(self.server_thread.name))
 
     def shutdown(self):
         self.server.shutdown()

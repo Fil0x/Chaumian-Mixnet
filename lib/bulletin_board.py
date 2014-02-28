@@ -2,6 +2,7 @@ import sys
 if ".." not in sys.path:
     sys.path.append("..")
 
+import time
 import socket
 import threading
 import SocketServer
@@ -40,6 +41,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     self.logger.debug('Notifying the next mixserver: Mix{}'.format(self.server.current_mix))
                     HOST, PORT = Settings.host_info('Mix{}'.format(self.server.current_mix))
                     for v in self.server.actual_votes:
+                        time.sleep(0.5)
+                        self.logger.debug('Sending next...')
                         self.send_vote(HOST, PORT, v)
                     #Get ready for the results of the mixnet
                     self.server.current_mix += 1
@@ -47,7 +50,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     self.server.received_votes = 0
                 else:
                     #Voting is completed
-                    self.logger.debug(self.server.received_votes)
+                    self.logger.debug(self.server.actual_votes)
                     self.server.current_mix = 1
                     self.server.actual_votes = []
                     self.server.received_votes = 0
@@ -75,7 +78,7 @@ class BulletinBoard(object):
         # Exit the server thread when the main thread terminates
         self.server_thread.daemon = True
         self.server_thread.start()
-        self.logger.debug("Server loop running in thread({}) & name({})".format(self.server_thread.name, self.name))
+        self.logger.debug('Server loop running in thread({})'.format(self.server_thread.name))
 
     def shutdown(self):
         self.server.shutdown()
