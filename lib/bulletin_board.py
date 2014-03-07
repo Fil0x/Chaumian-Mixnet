@@ -50,7 +50,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     self.server.received_votes = 0
                 else:
                     #Voting is completed
-                    self.logger.debug(self.server.actual_votes)
+                    self.logger.debug('Final votes:{}'.format(','.join(self.server.actual_votes)))
                     self.server.current_mix = 1
                     self.server.actual_votes = []
                     self.server.received_votes = 0
